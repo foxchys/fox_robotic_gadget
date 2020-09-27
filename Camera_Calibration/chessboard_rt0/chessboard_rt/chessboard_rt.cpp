@@ -53,28 +53,18 @@ void save_conrner(std::vector<cv::Point2f> image_piont_buf, int number)//save co
 
 std::vector<cv::Point2f> world_corner(cv::Size board_size, cv::Size2f realsize)//calculate corner point at world coordinate
 {
-	int width = board_size.width;
-	int height = board_size.height;
-	std::vector<cv::Point2f> world_corner;
-	//cv::Point2f tempcorner = ((realsize.width)*(width-1), (realsize.height)*(height-1));
-	cv::Point2f tempcorner;
-	//tempcorner.x = (realsize.width)*(width - 1);
-	//tempcorner.y = (realsize.height)*(height - 1);
-	int j = 0, k = 0;
-	for (int i = 0; i < (width*height); i++)
-	{
-		if (j == width)
-		{
-			j = 0;
-			k++;
-		}
-		tempcorner.x = (realsize.width)*(width - 1);
-		tempcorner.y = (realsize.height)*(height - 1);
-		tempcorner.x -= ((realsize.width)*(float)j);
-		tempcorner.y -= ((realsize.height)*(float)k);
-		j++;
-		world_corner.push_back(tempcorner);
-	}
+  int board_width = board_size.width;
+  int board_height = board_size.height;
+  std::vector<cv::Point2f> world_corner;
+	
+  for(int i=0; i< board_height; ++i) {
+    for(int j=0; j< board_width; ++j) {
+      cv::Point2f temp_corner;
+      temp_corner.x = board_real.width * i;
+      temp_corner.y = board_real.height * j;
+      world_corner.push_back(temp_corner);
+    }
+  }
 	return world_corner;
 }
 
