@@ -1,4 +1,4 @@
-#An example for robot dynamics 
+# An example for robot dynamics 
 Tow-link robot example for Modeling and Identification of Robot Dynamics based on [SymPyBotics](https://github.com/cdsousa/SymPyBotics)  
 
 
