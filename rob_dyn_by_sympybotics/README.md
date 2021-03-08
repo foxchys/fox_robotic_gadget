@@ -19,4 +19,4 @@ To get "test_tor_q_dq_ddq.csv" and "iden_tor_q_dq_ddq.csv" in matlab:
 ./gen_test_data/gen_twolink_dyn_data.m
 
 ## TODO
-fix [AttributeError: module 'sympy' has no attribute 'iterables'](https://github.com/cdsousa/SymPyBotics/issues/32) with sympy-1.7.1 or later.
+Fix [AttributeError: module 'sympy' has no attribute 'iterables'](https://github.com/cdsousa/SymPyBotics/issues/32) with sympy>=1.7.1
