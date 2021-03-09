@@ -13,7 +13,7 @@ pip install sympy==0.7.5
 ```
 python Two_link_dyn_iden.py
 ```  
-Compare the "output" with "test_tor_q_dq_ddq.csv".
+Compare the "output.csv" with "test_tor_q_dq_ddq.csv".
 ### data generation
 To get "test_tor_q_dq_ddq.csv" and "iden_tor_q_dq_ddq.csv" in matlab:  
 ./gen_test_data/gen_twolink_dyn_data.m
