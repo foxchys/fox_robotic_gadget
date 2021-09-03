@@ -1,4 +1,5 @@
 import sympy
+# import math
 import sympybotics
 import numpy as np
 
@@ -43,10 +44,14 @@ class DynIdentify(object):
     def get_hfunc(self):
         h_func_def = sympybotics.robotcodegen.robot_code_to_func(
             'python', self.rbt.H_code, 'H', 'H_rbt', self.rbtdef)
-        h_func_def = h_func_def.replace('sign', 'np.sign')
-        h_func_def = h_func_def.replace('sin', 'np.sin')
-        h_func_def = h_func_def.replace('cos', 'np.cos')
-        exec(h_func_def)
+        # h_func_def = h_func_def.replace('sign', 'np.sign')
+        # h_func_def = h_func_def.replace('sin', 'np.sin')
+        # h_func_def = h_func_def.replace('cos', 'np.cos')
+        global sin, cos, sign
+        sin = np.sin
+        cos = np.cos
+        sign = np.sign
+        exec(h_func_def, globals(), locals())
         return locals()['H_rbt']
 
     def get_h_matrix(self, q, dq, ddq):
@@ -60,10 +65,14 @@ class DynIdentify(object):
     def get_hbasefunc(self):
         h_func_def = sympybotics.robotcodegen.robot_code_to_func(
             'python', self.rbt.Hb_code, 'Hb', 'Hb_rbt', self.rbtdef)
-        h_func_def = h_func_def.replace('sign', 'np.sign')
-        h_func_def = h_func_def.replace('sin', 'np.sin')
-        h_func_def = h_func_def.replace('cos', 'np.cos')
-        exec(h_func_def)
+        # h_func_def = h_func_def.replace('sign', 'np.sign')
+        # h_func_def = h_func_def.replace('sin', 'np.sin')
+        # h_func_def = h_func_def.replace('cos', 'np.cos')
+        global sin, cos, sign
+        sin = np.sin
+        cos = np.cos
+        sign = np.sign
+        exec(h_func_def,globals(),locals())
         return locals()['Hb_rbt']
 
     def get_hbase_matrix(self, q, dq, ddq):

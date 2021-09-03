@@ -1,6 +1,7 @@
 
 import sys
 import numpy
+import math
 
 from .geometry import Geometry
 from .kinematics import Kinematics
@@ -106,6 +107,7 @@ class RobotDynCode(object):
         func_def_regressor = code_to_func(
             'python', self.H_code, 'regressor', 'regressor_func',
             ['q', 'dq', 'ddq'], q_subs)
+        # print(func_def_regressor)
 
         global sin, cos, sign
         sin = numpy.sin
