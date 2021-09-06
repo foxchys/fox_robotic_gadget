@@ -39,6 +39,9 @@ class DynIdentify(object):
         return self.rbt.dyn.baseparms
 
     def getsym_h_basematrix(self):
+        # print("self.rbt.dyn.Pb:")
+        # print(self.rbt.dyn.Pb)
+        # print("self.rbt.dyn.Pb:")
         return self.rbt.dyn.H * self.rbt.dyn.Pb
 
     def get_hfunc(self):
@@ -61,6 +64,10 @@ class DynIdentify(object):
         h_func = self.get_hfunc()
         hb = h_func(q, dq, ddq)
         return np.matrix(hb).reshape(self.rbt.dof, len(self.rbt.dyn.dynparms)).astype(np.float64)
+
+    def get_hbase_code(self, code_type = 'python'):
+        return sympybotics.robotcodegen.robot_code_to_func(
+            code_type, self.rbt.Hb_code, 'Hb', 'Hb_rbt', self.rbtdef)
 
     def get_hbasefunc(self):
         h_func_def = sympybotics.robotcodegen.robot_code_to_func(
@@ -127,8 +134,8 @@ class DynIdentify(object):
 
 
 def main():
-    # (alpha, a, d, theta)
-    # pi = sympy.pi
+    # # (alpha, a, d, theta)
+    # # pi = sympy.pi
     q = sympybotics.robotdef.q
     # # (alpha, a, d, theta)
     dh_param = [(0, 0, 0, q), (0, 4, 0, q)]
@@ -143,6 +150,8 @@ def main():
     print(test_dyn_identify.getsym_baseparams())
     print('getsym_h_basematrix:')
     print(test_dyn_identify.getsym_h_basematrix())
+    print('get_hbase_code:')
+    print(test_dyn_identify.get_hbase_code())
     hfunc = test_dyn_identify.get_hfunc()
     print('hfunc([0, 0], [0, 0], [0, 0])')
     print(hfunc([0, 0], [0, 0], [0, 0]))
@@ -155,17 +164,19 @@ def main():
     print('iden_baseparams')
     print(test_dyn_identify.iden_baseparams(iden_tor_p_v_a[:, 0:2], iden_tor_p_v_a[:, 2:4],
                                             iden_tor_p_v_a[:, 4:6], iden_tor_p_v_a[:, 6:8]))
-    # test the result
+    # # test the result
     ft_iden_data = open("test_tor_q_dq_ddq.csv", "rb")
     test_tor_p_v_a = np.loadtxt(ft_iden_data, delimiter=",", skiprows=0)
-    # test_tor_p_v_a = iden_tor_p_v_a
+    # # test_tor_p_v_a = iden_tor_p_v_a
     ft_iden_data.close()
     test_tor = test_dyn_identify.get_tor_hbxb(test_tor_p_v_a[:, 2:4],
                                               test_tor_p_v_a[:, 4:6],
-                                              test_tor_p_v_a[:, 6:8],)
+                                              test_tor_p_v_a[:, 6:8])
     np.savetxt('output.csv', test_tor, delimiter=',')
+    print('test_tor:')
     print(test_tor)
     return
 
 
 main()
+
