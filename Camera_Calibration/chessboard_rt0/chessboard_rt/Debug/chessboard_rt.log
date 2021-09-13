@@ -1,3 +1,0 @@
-﻿  chessboard_rt.cpp
-f:\temporary\work_study\chessboard_rt\chessboard_rt\chessboard_rt.cpp(64): warning C4018: '<': signed/unsigned mismatch
-opencv_world340d.lib(opencv_world340d.dll) : fatal error LNK1112: module machine type 'x64' conflicts with target machine type 'X86'
