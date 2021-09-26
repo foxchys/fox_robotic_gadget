@@ -48,7 +48,7 @@ class DynIdentify(object):
     def get_code_h_func(self, code_type='python'):
         if code_type == 'matlab':
             return self._convert_pyhfunc2matlabfunc(sympybotics.robotcodegen.robot_code_to_func(
-                'python', self.rbt.Hb_code, 'H', 'H_rbt', self.rbtdef), 'H')
+                'python', self.rbt.H_code, 'H', 'H_rbt', self.rbtdef), 'H')
         else:
             return sympybotics.robotcodegen.robot_code_to_func(
                 code_type, self.rbt.H_code, 'H', 'H_rbt', self.rbtdef)
