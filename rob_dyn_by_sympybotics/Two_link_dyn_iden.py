@@ -1,11 +1,11 @@
 import sympy
 # import math
+import re
 import sympybotics
 import numpy as np
 
 
 class DynIdentify(object):
-
     """Class for Robotic Dynamic Identification based on sympybotics"""
     """by foxchys Email:chy_s@outlook.com"""
 
@@ -15,7 +15,7 @@ class DynIdentify(object):
     # dh_convention:'standard' or 'modified'
     # gravityacc: [0.0, 0.0, -9.81]
     # frictionmodel = {'Coulomb', 'viscous'}
-    def __init__(self, robot_name, dh_param, dh_convention, gravityacc, friction_model=None,):
+    def __init__(self, robot_name, dh_param, dh_convention, gravityacc, friction_model=None, ):
         self.rbtdef = sympybotics.RobotDef(robot_name,  # robot name
                                            dh_param,  # (alpha, a, d, theta)
                                            dh_convention  # either 'standard' or 'modified'
@@ -27,6 +27,7 @@ class DynIdentify(object):
         self.rbt.gravityacc = sympy.Matrix(gravityacc)
         self.rbt.calc_base_parms()
         self.baseparams_value = np.zeros(len(self.rbt.dyn.baseparms), np.float64)
+        self.rob_dof = self.rbtdef.dof
         return
 
     def getsym_dynparams(self):
@@ -44,16 +45,25 @@ class DynIdentify(object):
         # print("self.rbt.dyn.Pb:")
         return self.rbt.dyn.H * self.rbt.dyn.Pb
 
-    def get_hfunc(self):
-        h_func_def = sympybotics.robotcodegen.robot_code_to_func(
-            'python', self.rbt.H_code, 'H', 'H_rbt', self.rbtdef)
-        # h_func_def = h_func_def.replace('sign', 'np.sign')
-        # h_func_def = h_func_def.replace('sin', 'np.sin')
-        # h_func_def = h_func_def.replace('cos', 'np.cos')
-        global sin, cos, sign
-        sin = np.sin
-        cos = np.cos
-        sign = np.sign
+    def get_code_h_func(self, code_type='python'):
+        if code_type == 'matlab':
+            return self._convert_pyhfunc2matlabfunc(sympybotics.robotcodegen.robot_code_to_func(
+                'python', self.rbt.Hb_code, 'H', 'H_rbt', self.rbtdef), 'H')
+        else:
+            return sympybotics.robotcodegen.robot_code_to_func(
+                code_type, self.rbt.H_code, 'H', 'H_rbt', self.rbtdef)
+
+    def _get_hfunc(self):
+        # h_func_def = sympybotics.robotcodegen.robot_code_to_func(
+        #     'python', self.rbt.H_code, 'H', 'H_rbt', self.rbtdef)
+        h_func_def = self.get_code_h_func('python')
+        h_func_def = h_func_def.replace('sign', 'np.sign')
+        h_func_def = h_func_def.replace('sin', 'np.sin')
+        h_func_def = h_func_def.replace('cos', 'np.cos')
+        # global sin, cos, sign
+        # sin = np.sin
+        # cos = np.cos
+        # sign = np.sign
         exec(h_func_def, globals(), locals())
         return locals()['H_rbt']
 
@@ -61,32 +71,62 @@ class DynIdentify(object):
         q = q.flatten()
         dq = dq.flatten()
         ddq = ddq.flatten()
-        h_func = self.get_hfunc()
+        h_func = self._get_hfunc()
         hb = h_func(q, dq, ddq)
         return np.matrix(hb).reshape(self.rbt.dof, len(self.rbt.dyn.dynparms)).astype(np.float64)
 
-    def get_hbase_code(self, code_type = 'python'):
-        return sympybotics.robotcodegen.robot_code_to_func(
-            code_type, self.rbt.Hb_code, 'Hb', 'Hb_rbt', self.rbtdef)
+    def _convert_pyhfunc2matlabfunc(self, in_pyfunc, func_ouput_name='Hb'):
+        matlab_func = in_pyfunc
+        # re.findall('\[\d*\.?\d*\]',in_pyfunc)
 
-    def get_hbasefunc(self):
-        h_func_def = sympybotics.robotcodegen.robot_code_to_func(
-            'python', self.rbt.Hb_code, 'Hb', 'Hb_rbt', self.rbtdef)
-        # h_func_def = h_func_def.replace('sign', 'np.sign')
-        # h_func_def = h_func_def.replace('sin', 'np.sin')
-        # h_func_def = h_func_def.replace('cos', 'np.cos')
-        global sin, cos, sign
-        sin = np.sin
-        cos = np.cos
-        sign = np.sign
-        exec(h_func_def,globals(),locals())
+        matlab_func = re.sub(r'def', 'function [%s] =' % func_ouput_name, matlab_func, 1)
+        matlab_func = re.sub(func_ouput_name+r'\s=\s\[0]\*\d*',
+                             lambda x: r'%s =zeros(%d,%d)' %
+                                       (func_ouput_name,
+                                        self.rob_dof,
+                                        int(x.group()[(x.group().find('*')+1):len(x.group())])/self.rob_dof),
+                             matlab_func, 1)
+        # replace '[n]' to '(n+1)'
+        matlab_func = re.sub(r'\[\d*]',
+                             lambda x: r'(%d)' % (int(x.group()[1:(len(x.group()) - 1)]) + 1),
+                             matlab_func)
+        # replace '**n' to '^n'
+        matlab_func = re.sub(r'\*\*\d*',
+                             lambda x: r'^%d' % (int(x.group()[2:(len(x.group()))])),
+                             matlab_func)
+        matlab_func = re.sub(r'#', '%', matlab_func)
+        matlab_func = re.sub(r'\n', ';\n', matlab_func)
+        matlab_func = re.sub(r';\n;', ';\n', matlab_func, 1)
+        matlab_func = re.sub(r'\s*return.*', r'\nend', matlab_func, 1)
+        return matlab_func
+
+    def get_code_hbase_func(self, code_type='python'):
+        if code_type == 'matlab':
+            return self._convert_pyhfunc2matlabfunc(sympybotics.robotcodegen.robot_code_to_func(
+                'python', self.rbt.Hb_code, 'Hb', 'Hb_rbt', self.rbtdef), 'Hb')
+        else:
+            return sympybotics.robotcodegen.robot_code_to_func(
+                code_type, self.rbt.Hb_code, 'Hb', 'Hb_rbt', self.rbtdef)
+
+    def _get_hbasefunc(self):
+        # h_func_def = sympybotics.robotcodegen.robot_code_to_func(
+        #     'python', self.rbt.Hb_code, 'Hb', 'Hb_rbt', self.rbtdef)
+        h_func_def = self.get_code_hbase_func('python')
+        h_func_def = h_func_def.replace('sign', 'np.sign')
+        h_func_def = h_func_def.replace('sin', 'np.sin')
+        h_func_def = h_func_def.replace('cos', 'np.cos')
+        # global sin, cos, sign
+        # sin = np.sin
+        # cos = np.cos
+        # sign = np.sign
+        exec(h_func_def, globals(), locals())
         return locals()['Hb_rbt']
 
     def get_hbase_matrix(self, q, dq, ddq):
         q = q.flatten()
         dq = dq.flatten()
         ddq = ddq.flatten()
-        hb_func = self.get_hbasefunc()
+        hb_func = self._get_hbasefunc()
         hb = hb_func(q, dq, ddq)
         return np.matrix(hb).reshape(self.rbt.dof, len(self.rbt.dyn.baseparms)).astype(np.float64)
 
@@ -101,14 +141,14 @@ class DynIdentify(object):
             q = q.T
             dq = dq.T
             ddq = ddq.T
-        hb_whole_matrix = np.zeros((len(tor)*self.rbt.dof, len(self.rbt.dyn.baseparms)), np.float64)
-        tor_whol_vec = np.zeros((len(tor)*self.rbt.dof, 1), np.float64)
+        hb_whole_matrix = np.zeros((len(tor) * self.rbt.dof, len(self.rbt.dyn.baseparms)), np.float64)
+        tor_whol_vec = np.zeros((len(tor) * self.rbt.dof, 1), np.float64)
         for ii in range(0, len(tor), 1):
-            i = ii*self.rbt.dof
+            i = ii * self.rbt.dof
             hb_whole_matrix[i:i + self.rbt.dof, :] = self.get_hbase_matrix(np.array(q[ii, :]),
                                                                            np.array(dq[ii, :]),
                                                                            np.array(ddq[ii, :])).copy()
-            tor_whol_vec[i:i+self.rbt.dof, :] = np.mat(tor[ii, :]).T.copy()
+            tor_whol_vec[i:i + self.rbt.dof, :] = np.mat(tor[ii, :]).T.copy()
         dyn_param = np.dot(np.dot(np.linalg.inv(np.dot(hb_whole_matrix.T, hb_whole_matrix)), hb_whole_matrix.T),
                            tor_whol_vec)
         self.baseparams_value = dyn_param
@@ -150,11 +190,11 @@ def main():
     print(test_dyn_identify.getsym_baseparams())
     print('getsym_h_basematrix:')
     print(test_dyn_identify.getsym_h_basematrix())
-    print('get_hbase_code:')
-    print(test_dyn_identify.get_hbase_code())
-    hfunc = test_dyn_identify.get_hfunc()
-    print('hfunc([0, 0], [0, 0], [0, 0])')
-    print(hfunc([0, 0], [0, 0], [0, 0]))
+    print('get_python_code_hbase_func:')
+    print(test_dyn_identify.get_code_hbase_func())
+    # hfunc = test_dyn_identify.get_hfunc()
+    # print('hfunc([0, 0], [0, 0], [0, 0])')
+    # print(hfunc([0, 0], [0, 0], [0, 0]))
     print('get_hbase_matrix')
     print(test_dyn_identify.get_hbase_matrix(np.array([0.0, 1.0]),
                                              np.array([1.0, -0.0]),
