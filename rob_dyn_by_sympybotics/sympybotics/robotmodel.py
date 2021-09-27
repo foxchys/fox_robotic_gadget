@@ -121,10 +121,16 @@ class RobotDynCode(object):
         if verbose:
             _fprint('calculating base parameters and regressor code')
 
+##------------------------------------------------------------
+        H_se = Subexprs()
+        self.dyn.gen_regressor(H_se.collect)
+        self.H_code = H_se.get(self.dyn.H)
+##------------------------------------------------------------
+
         self.dyn.calc_base_parms(regressor_func)
 
-        H_se = Subexprs()
-        H_se._subexp_iv = self._H_se
+##        H_se = Subexprs()
+##        H_se._subexp_iv = self._H_se
         self.Hb_code = H_se.get(self.dyn.H * self.dyn.Pb)
 
         self._codes.append('Hb_code')

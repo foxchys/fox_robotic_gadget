@@ -97,6 +97,7 @@ class DynIdentify(object):
         matlab_func = re.sub(r'#', '%', matlab_func)
         matlab_func = re.sub(r'\n', ';\n', matlab_func)
         matlab_func = re.sub(r';\n;', ';\n', matlab_func, 1)
+        matlab_func = re.sub(r'\):;', r')', matlab_func, 1)
         matlab_func = re.sub(r'\s*return.*', r'\nend', matlab_func, 1)
         return matlab_func
 
