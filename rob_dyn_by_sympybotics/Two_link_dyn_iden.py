@@ -83,8 +83,8 @@ class DynIdentify(object):
         matlab_func = re.sub(func_ouput_name+r'\s=\s\[0]\*\d*',
                              lambda x: r'%s =zeros(%d,%d)' %
                                        (func_ouput_name,
-                                        self.rob_dof,
-                                        int(x.group()[(x.group().find('*')+1):len(x.group())])/self.rob_dof),
+                                        int(x.group()[(x.group().find('*')+1):len(x.group())])/self.rob_dof,
+                                        self.rob_dof),
                              matlab_func, 1)
         # replace '[n]' to '(n+1)'
         matlab_func = re.sub(r'\[\d*]',
@@ -98,7 +98,9 @@ class DynIdentify(object):
         matlab_func = re.sub(r'\n', ';\n', matlab_func)
         matlab_func = re.sub(r';\n;', ';\n', matlab_func, 1)
         matlab_func = re.sub(r'\):;', r')', matlab_func, 1)
-        matlab_func = re.sub(r'\s*return.*', r'\nend', matlab_func, 1)
+        matlab_func = re.sub(r'\s*return.*',
+                             (r'\n'+4 * r' '+func_ouput_name+r'=transpose('+func_ouput_name+r');\n\n'+r'end'),
+                             matlab_func, 1)
         return matlab_func
 
     def get_code_hbase_func(self, code_type='python'):
@@ -217,6 +219,7 @@ def main():
     print('test_tor:')
     print(test_tor)
     return
+
 
 
 main()
