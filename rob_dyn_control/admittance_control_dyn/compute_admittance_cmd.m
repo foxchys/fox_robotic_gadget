@@ -61,9 +61,8 @@ sizes.NumContStates  = 0;
 % t pre
 sizes.NumDiscStates  = 1;
 sizes.NumOutputs     = rob_dof; % position increment
-% Kp(pid Kp)
 % position--velocity--external force--M(damping) B(damping) K(stiffness)
-sizes.NumInputs      = 3*rob_dof+4; 
+sizes.NumInputs      = 3*rob_dof+3; 
 sizes.DirFeedthrough = 1;
 sizes.NumSampleTimes = 1;
 
@@ -101,12 +100,10 @@ global rob_model; % TODO check joint limit---------------------------
 global rob_dof;
 
 delta_t = t-x(end);
-coefficient_Kp = u(end-3);
 % M(damping) B(damping) K(stiffness)
 coefficient_M = u(end-2); 
 coefficient_B = u(end-1);
 coefficient_K = u(end);
-coefficient_B = 2*coefficient_B*sqrt(coefficient_M*coefficient_Kp);% 
 sys = zeros(rob_dof, 1);
 for i = 1:rob_dof
 
