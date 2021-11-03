@@ -104,15 +104,18 @@ delta_t = t-x(end);
 coefficient_M = u(end-2); 
 coefficient_B = u(end-1);
 coefficient_K = u(end);
+
+coefficient_B = 2*coefficient_B*sqrt(coefficient_M*coefficient_K);
 sys = zeros(rob_dof, 1);
+
 for i = 1:rob_dof
 
     cmd_ddq_i = ( u(2*rob_dof+i) -...
         coefficient_B*(u(rob_dof+i)-0) - ...
         coefficient_K*(u(i)-0) )/coefficient_M;
-    % Backward Euler Discrete-Time Integrator
-    delta_dq =0 + delta_t*cmd_ddq_i;
-    delta_q = u(rob_dof+i) + delta_t*delta_dq;
+%     Backward Euler Discrete-Time Integrator
+    delta_dq = delta_t*0 + delta_t*cmd_ddq_i;
+    delta_q = delta_t*u(rob_dof+i) + delta_t*delta_dq;
 
     sys(i) = delta_q;
 end
