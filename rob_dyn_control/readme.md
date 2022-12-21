@@ -32,7 +32,7 @@ For a real robot, we could use the program in "fox_robotic_gadget/rob_dyn_contro
 ```
 rob_model.rob_model_proterties_.basic_proterties.plot(traj_2plot)
 ```
-The animation should be as shown in the figure below:
+The animation should be as shown in the figure below:  
 ![trajectory_animation.gif](https://raw.githubusercontent.com/foxchys/fox_robotic_gadget/master/rob_dyn_control/pictures/trajectory_animation.gif)  
 We could also check the joint limits by ploting the trajectory.  
 ```
