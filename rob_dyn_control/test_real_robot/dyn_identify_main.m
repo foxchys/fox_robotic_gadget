@@ -1,6 +1,6 @@
 %     This file is part of fox_robotic_gadget/rob_dyn_control.
 %     
-%     Copyright (C) 2021, by ChyS(foxchys)
+%     Copyright (C) 2021-2022, by ChyS(foxchys)
 % 
 %     This program is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU Affero General Public License as published
@@ -67,7 +67,7 @@ for j = 1:rob_dof
 end
 
 disp('computing dynamic params......');
-dyn_base_param = rob_model.identify_dyn_params_lls(traj_1_tor,...
+dyn_base_param = rob_model.identify_dyn_params_ls(traj_1_tor,...
     traj_1_q_dq_ddq_filtered(:,1:rob_dof),...
     traj_1_q_dq_ddq_filtered(:,rob_dof+1:2*rob_dof),...
     traj_1_q_dq_ddq_filtered(:,2*rob_dof+1:3*rob_dof),...

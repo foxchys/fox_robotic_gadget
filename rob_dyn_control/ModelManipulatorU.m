@@ -1,6 +1,6 @@
 %     This file is part of fox_robotic_gadget/rob_dyn_control.
 %     
-%     Copyright (C) 2021, by ChyS(foxchys)
+%     Copyright (C) 2021-2022, by ChyS(foxchys)
 % 
 %     This program is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU Affero General Public License as published
@@ -201,9 +201,9 @@ classdef ModelManipulatorU
             end
         end % function compute_dynamic_regressor_mat()
         
-        function dyn_params = identify_dyn_params_lls(obj,...
+        function dyn_params = identify_dyn_params_ls(obj,...
                 joint_tor, joint_q, joint_dq, joint_ddq, varargin)
-            % identify dynamic params based on linear least square (H*params=Tor)
+            % identify dynamic params based on least square (H*params=Tor)
             %     which H is the regressor matrix,
             %     params is the dynamic params 
             %     Tor is the torque of joints

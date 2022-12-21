@@ -1,4 +1,4 @@
-# An example for robot dynamics 
+# fox_robotic_gadget/rob_dyn_sympybotics 
 Tow-link robot example for Modeling and Identification of Robot Dynamics based on [SymPyBotics](https://github.com/cdsousa/SymPyBotics)  
 
 

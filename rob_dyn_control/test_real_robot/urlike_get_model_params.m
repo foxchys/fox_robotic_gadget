@@ -1,6 +1,6 @@
 %     This file is part of fox_robotic_gadget/rob_dyn_control.
 %     
-%     Copyright (C) 2021, by ChyS(foxchys)
+%     Copyright (C) 2021-2022, by ChyS(foxchys)
 % 
 %     This program is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU Affero General Public License as published

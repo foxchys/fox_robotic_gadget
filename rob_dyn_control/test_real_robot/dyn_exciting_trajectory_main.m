@@ -1,6 +1,6 @@
 %     This file is part of fox_robotic_gadget/rob_dyn_control.
 %     
-%     Copyright (C) 2021, by ChyS(foxchys)
+%     Copyright (C) 2021-2022, by ChyS(foxchys)
 % 
 %     This program is free software: you can redistribute it and/or modify
 %     it under the terms of the GNU Affero General Public License as published
@@ -22,7 +22,7 @@
 
 %% params setting
 % hyper-parameters setting
-rob_model = ModelManipulatorU('param_func_hd', @hd_ur_get_model_params);
+rob_model = ModelManipulatorU('param_func_hd', @urlike_get_model_params);
 
 use_base_dyn_regressor_mat = true; % always set use_base_dyn_regressor_mat = true
 exticiting_trajectory_compute_method = optimoptions('fmincon',...
